@@ -1,0 +1,10 @@
+*.opendb
+*.sdf
+*.suo
+*.log
+*.pch
+*.tlog
+*.lastbuildstate
+*.obj
+*.idb
+*.pdb
