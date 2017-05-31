@@ -10,6 +10,7 @@ class Spring;
 
 enum PhysicsObjectType
 {
+	NONE,
 	PLANE,
 	CIRCLE,
 	BOX,
@@ -21,8 +22,9 @@ class PhysicsObject2D
 public:
 	virtual void draw() = 0;
 	virtual void update(float dt) = 0;	
-	virtual void collideWithCircle(Circle* other) = 0;
-	virtual void collideWithPlane(Plane* other) = 0;
+	virtual void collideWithCircle(Circle* circle) = 0;
+	virtual void collideWithPlane(Plane* plane) = 0;
+	virtual void collideWithBox(Box* box) = 0;
 
 	void checkCollisions(PhysicsObject2D* other);
 

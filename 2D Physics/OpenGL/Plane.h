@@ -15,8 +15,9 @@ public:
 	virtual void draw();
 	virtual void update(float dt);
 
-	virtual void collideWithCircle(Circle* other);
-	virtual void collideWithPlane(Plane* other);
+	virtual void collideWithCircle(Circle* circle);
+	virtual void collideWithPlane(Plane* plane);
+	virtual void collideWithBox(Box* box);
 
 	vec2 position;
 	vec2 normal;

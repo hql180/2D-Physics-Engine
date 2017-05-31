@@ -6,6 +6,7 @@
 #include "Plane.h"
 #include "RigidBody2D.h"
 #include "Circle.h"
+#include "Box.h"
 
 using namespace glm;
 
@@ -42,12 +43,15 @@ bool PhysicsApplication::startup()
 
 	Gizmos::create(65335U, 65535U, 65535U, 65535U);
 
+	float bounce = 0.0f;
 
-
-	physicsObjects.push_back(new Circle(vec2(0, 10), vec2(0, -1), 1, 1));
-	physicsObjects.push_back(new Circle(vec2(2, 10), vec2(0, -1), 1, 1));
-	physicsObjects.push_back(new Plane(vec2(0, -5)));
-	physicsObjects.push_back(new Circle(vec2(-2, 10), vec2(0, -1), 1, 1));
+	physicsObjects.push_back(new Circle(vec2(0, 10), vec2(0, -1), 1, 1, bounce));
+	physicsObjects.push_back(new Circle(vec2(2, 10), vec2(0, -1), 1, 1, bounce));
+	physicsObjects.push_back(new Plane(vec2(0, -5), vec2(0.5, 1)));
+	physicsObjects.push_back(new Plane(vec2(25, 0), vec2(1, 0)));
+	physicsObjects.push_back(new Plane(vec2(0, 20), vec2(0, 1)));
+	physicsObjects.push_back(new Circle(vec2(-2, 10), vec2(0, -1), 1, 1, bounce));
+	physicsObjects.push_back(new Box(vec2(-6, 10), vec2(0), 2, 2, 2, 0.5f, 3.14159f));
 
 	PhysicsObject2D::gravity = vec2(0, -2);
 
@@ -77,14 +81,14 @@ bool PhysicsApplication::update()
 	
 	int counter = 0;
 	for (auto it = physicsObjects.begin(); it != physicsObjects.end(); ++it)
-	{
+	{	
 		PhysicsObject2D* obj = *it;
 		obj->update(dt);
 		for (auto it2 = --physicsObjects.end(); it2 != it; --it2)
 		{
 			obj->checkCollisions(*it2);
 			counter += 1;
-		}
+		}		
 	}
 	printf("%d \n", counter); //Debug
 	

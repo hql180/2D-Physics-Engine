@@ -3,7 +3,12 @@
 #include "Gizmos.h"
 #include "Plane.h"
 
-Circle::Circle(vec2 pos, vec2 vel, float r, float m, float bouncy, float a, vec4 col)
+Circle::Circle()
+{
+	objectType = CIRCLE;
+}
+
+Circle::Circle(vec2 pos, vec2 vel, float r, float m, float bouncy, float a, float rot, vec4 col)
 {
 	position = pos;
 	velocity = vel;
@@ -12,6 +17,10 @@ Circle::Circle(vec2 pos, vec2 vel, float r, float m, float bouncy, float a, vec4
 	bounce = bouncy;
 	angle = a;
 	colour = col;
+	rotation = rot;
+	
+	moment = 0.5f * mass * radius * radius;
+
 	objectType = CIRCLE;
 }
 
@@ -30,20 +39,24 @@ void Circle::update(float dt)
 	velocity += gravity * dt;
 }
 
-void Circle::collideWithCircle(Circle * other)
+void Circle::collideWithCircle(Circle * circle)
 {
 
 }
 
-void Circle::collideWithPlane(Plane * other)
+void Circle::collideWithPlane(Plane * plane)
 {
-	float distance = glm::dot(position - other->position, other->normal);
-	float vPerp = glm::dot(velocity, other->normal);
+	float distance = glm::dot(position - plane->position, plane->normal);
+	float vPerp = glm::dot(velocity, plane->normal);
 
 	if ((distance > 0 && distance < radius && vPerp < 0) || (distance < 0 && distance> -radius&& vPerp > 0))
 	{
-		vec2 force = -mass * (vPerp * other->normal) * (1.f + radius);
-		applyForce(force);
+		vec2 force = -mass * (vPerp * plane->normal) * (1.f + bounce);
+		applyForce(force, plane->normal * distance);
 	}
+}
+
+void Circle::collideWithBox(Box * box)
+{
 }
 

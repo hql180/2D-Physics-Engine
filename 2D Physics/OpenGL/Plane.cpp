@@ -3,6 +3,7 @@
 #include "Gizmos.h"
 
 #include "Circle.h"
+#include "Box.h"
 
 Plane::Plane()
 {
@@ -29,11 +30,16 @@ void Plane::update(float dt)
 {
 }
 
-void Plane::collideWithCircle(Circle* other)
+void Plane::collideWithCircle(Circle* circle)
 {
-	other->collideWithPlane(this);
+	circle->collideWithPlane(this);
 }
 
-void Plane::collideWithPlane(Plane* other)
+void Plane::collideWithPlane(Plane* plane)
 {
+}
+
+void Plane::collideWithBox(Box * box)
+{
+	box->collideWithPlane(this);
 }
