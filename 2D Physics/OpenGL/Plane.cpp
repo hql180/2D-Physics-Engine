@@ -10,9 +10,10 @@ Plane::Plane()
 	objectType = PLANE;
 }
 
-Plane::Plane(vec2 pos, vec2 norm, vec4 col) : position(pos), normal(norm), colour(col)
+Plane::Plane(vec2 pos, vec2 norm, vec4 col) : position(pos), colour(col)
 {
 	objectType = PLANE;
+	normal = normalize(norm);
 	parallel = vec2(normal.y, -normal.x);
 }
 

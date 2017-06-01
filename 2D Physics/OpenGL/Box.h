@@ -19,8 +19,5 @@ public:
 	virtual void collideWithBox(Box* box);
 
 	float width, height;
-
-	vec2 localX;
-	vec2 localY;
 };
 

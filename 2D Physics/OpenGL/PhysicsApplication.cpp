@@ -43,15 +43,7 @@ bool PhysicsApplication::startup()
 
 	Gizmos::create(65335U, 65535U, 65535U, 65535U);
 
-	float bounce = 0.0f;
-
-	physicsObjects.push_back(new Circle(vec2(0, 10), vec2(0, -1), 1, 1, bounce));
-	physicsObjects.push_back(new Circle(vec2(2, 10), vec2(0, -1), 1, 1, bounce));
-	physicsObjects.push_back(new Plane(vec2(0, -5), vec2(0.5, 1)));
-	physicsObjects.push_back(new Plane(vec2(25, 0), vec2(1, 0)));
-	physicsObjects.push_back(new Plane(vec2(0, 20), vec2(0, 1)));
-	physicsObjects.push_back(new Circle(vec2(-2, 10), vec2(0, -1), 1, 1, bounce));
-	physicsObjects.push_back(new Box(vec2(-6, 10), vec2(0), 2, 2, 2, 0.5f, 3.14159f));
+	restart();
 
 	PhysicsObject2D::gravity = vec2(0, -2);
 
@@ -72,7 +64,7 @@ bool PhysicsApplication::update()
 {
 	if (glfwGetKey(window, GLFW_KEY_R))
 	{
-
+		restart();
 	}
 
 	camera.update(window);
@@ -90,7 +82,6 @@ bool PhysicsApplication::update()
 			counter += 1;
 		}		
 	}
-	printf("%d \n", counter); //Debug
 	
 	return (glfwWindowShouldClose(window) == false && glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS);
 }
@@ -134,4 +125,22 @@ void PhysicsApplication::draw()
 	glfwPollEvents();
 
 	day++;
+}
+
+// will cause memory leaks
+void PhysicsApplication::restart()
+{
+	physicsObjects.clear();
+	float bounce = .2f;
+	float boxBounce = .2f;
+
+	physicsObjects.push_back(new Circle(vec2(0, 10), vec2(0, 1), 1, 1, bounce));
+	physicsObjects.push_back(new Circle(vec2(2, 10), vec2(1, -1), 1, 1, bounce));
+	physicsObjects.push_back(new Plane(vec2(0, -5), vec2(0.5, 1)));
+	physicsObjects.push_back(new Plane(vec2(25, 0), vec2(1, 0)));
+	physicsObjects.push_back(new Plane(vec2(0, 20), vec2(0, 1)));
+	physicsObjects.push_back(new Circle(vec2(-2, 10), vec2(-1, -1), 1, 1, bounce));
+	physicsObjects.push_back(new Box(vec2(-8, 10), vec2(2, 3), 2, 2, 2, boxBounce));
+	physicsObjects.push_back(new Box(vec2(-6, 10), vec2(4, 7), 2, 2, 2, boxBounce));
+	physicsObjects.push_back(new Box(vec2(-8, 5), vec2(-3, 0), 2, 2, 2, boxBounce));
 }

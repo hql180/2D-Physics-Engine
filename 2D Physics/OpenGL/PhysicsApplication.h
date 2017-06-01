@@ -22,6 +22,8 @@ public:
 	virtual bool update();
 	virtual void draw();
 
+	void restart(); // will cause memory leaks
+
 	int day = 0;
 
 	Camera camera;

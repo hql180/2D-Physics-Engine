@@ -54,35 +54,112 @@ void Box::draw()
 
 void Box::update(float dt)
 {
-	angle += rotation * dt;
-	position += velocity * dt;
-
-	float cs = cosf(angle);
-	float sn = sinf(angle);
-
-	localX = vec2(cs, sn);
-	localY = vec2(-sn, cs);
-
-	velocity += gravity * dt;
+	RigidBody2D::update(dt);
 }
 
 void Box::collideWithCircle(Circle * circle)
 {
+	// relative position of circle
+	vec2 circlePos = circle->position - position;
+
+	float circleDist = length(circlePos);
+	float boxRadius = length(width / 2.f + height / 2.f); // debug
+
+	// excludes circles too far away to collide
+	if (length(circlePos) > circle->radius + length(width / 2.f + height / 2.f))
+		return;
+
+	float w2 = width / 2.f;
+	float h2 = height / 2.f;
+
+	int numContacts = 0;
+	// contact point is in box local space
+	vec2 contact(0);
+	vec2 direction = vec2(0);
+	int otherContacts = 0;
+
+	float penetration = 0;
+	// checks to see if any of the four corners are inside circle
+	for (float x = -w2; x < width; x += width)
+	{
+		for (float y = -h2; y < height; y += height)
+		{
+			vec2 p = x*localX + y*localY;
+			vec2 dp = p - circlePos;
+			if (dp.x*dp.x + dp.y*dp.y < circle->radius*circle->radius)
+			{
+				++numContacts;
+				contact += vec2(x, y);
+				penetration = circle->radius * circle->radius - (dp.x*dp.x + dp.y*dp.y);
+			}
+		}
+
+
+		// get local position of circle centre
+		vec2 localPos(dot(localX, circlePos), dot(localY, circlePos));
+
+		if (localPos.y < h2 && localPos.y >-h2)
+		{
+			if (localPos.x > 0 && localPos.x < w2 + circle->radius)
+			{
+				++otherContacts;
+				contact += vec2(w2, localPos.y);
+				direction = localX;
+				penetration = w2 + circle->radius - localPos.x;
+			}
+			if (localPos.x < 0 && localPos.x > -(w2 + circle->radius))
+			{
+				++otherContacts;
+				contact += vec2(-w2, localPos.y);
+				direction = -localX;
+				penetration = localPos.x + (w2 + circle->radius);
+			}
+		}
+		if (localPos.x < w2 && localPos.x >-w2)
+		{
+			if (localPos.y > 0 && localPos.y < h2 + circle->radius)
+			{
+				++otherContacts;
+				contact += vec2(localPos.x, h2);
+				direction = localY;
+				penetration = h2 + circle->radius - localPos.y;
+			}
+			if (localPos.y < 0 && localPos.y >-(h2 + circle->radius))
+			{
+				++otherContacts;
+				contact += vec2(localPos.x, -h2);
+				direction = -localY;
+				penetration = localPos.y + (h2 + circle->radius); // localPos.y + (h2 + circle->radius);
+			}
+		}
+
+		numContacts += otherContacts;
+	}
+
+	if (numContacts > 0)
+	{
+		contact = position + (1.f / numContacts) * (localX*contact.x + localY*contact.y);
+		// add position again to convert to world space
+		resolveCollision(circle, contact, (otherContacts > 0) ? &direction : nullptr);
+		penetration /= 2.f;
+		position -= normalize(otherContacts ? direction : circlePos) * penetration;
+		circle->position += normalize(otherContacts ? direction : circlePos) * penetration;
+	}
 }
 
 void Box::collideWithPlane(Plane * plane)
 {
-	int contacts = 0;
-	vec2 contact(0, 0);
+	int numContacts = 0;
+	vec2 contact(0);
 	float contactV = 0;
 	float radius = 0.5f * std::fminf(width, height);
 
 	float comFromPlane = dot(position - plane->position, plane->normal);
 	float penetration = 0;
 
-	for (float x = -width / 2; x < width; x += width)
+	for (float x = -width / 2.f; x < width; x += width)
 	{
-		for (float y = -height / 2; y < height; y += height)
+		for (float y = -height / 2.f; y < height; y += height)
 		{
 			vec2 p = position + x*localX + y*localY;
 			float distFromPlane = dot(p - plane->position, plane->normal);
@@ -92,7 +169,7 @@ void Box::collideWithPlane(Plane * plane)
 			if ((distFromPlane > 0 && comFromPlane < 0 && velocityIntoPlane > 0) ||
 				(distFromPlane < 0 && comFromPlane > 0 && velocityIntoPlane < 0))
 			{
-				contacts++;
+				numContacts++;
 				contact += p;
 				contactV += velocityIntoPlane;
 				if (comFromPlane >= 0)
@@ -110,13 +187,13 @@ void Box::collideWithPlane(Plane * plane)
 		}
 	}
 
-	if (contacts > 0)
+	if (numContacts > 0)
 	{
-		float collisionV = contactV / (float)contacts;
+		float collisionV = contactV / (float)numContacts;
 
 		vec2 acceleration = -plane->normal * (1.0f + bounce) * collisionV;
 
-		vec2 localContact = (contact / (float)contacts) - position;
+		vec2 localContact = (contact / (float)numContacts) - position;
 
 		float r = dot(localContact, vec2(plane->normal.y, -plane->normal.x));
 

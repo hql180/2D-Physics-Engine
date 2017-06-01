@@ -2,6 +2,7 @@
 #include "Circle.h"
 #include "Gizmos.h"
 #include "Plane.h"
+#include "Box.h"
 
 Circle::Circle()
 {
@@ -19,6 +20,9 @@ Circle::Circle(vec2 pos, vec2 vel, float r, float m, float bouncy, float a, floa
 	colour = col;
 	rotation = rot;
 	
+	localX = vec2(0);
+	localY = vec2(0);
+
 	moment = 0.5f * mass * radius * radius;
 
 	objectType = CIRCLE;
@@ -31,32 +35,57 @@ Circle::~Circle()
 void Circle::draw()
 {
 	Gizmos::add2DCircle(position, radius, 20, colour);
+	Gizmos::add2DCircle(position + radius* 0.5f * localX, radius*0.2f, 20, vec4(1));
 }
 
 void Circle::update(float dt)
 {
-	position += velocity * dt;
-	velocity += gravity * dt;
+	RigidBody2D::update(dt);
 }
 
 void Circle::collideWithCircle(Circle * circle)
 {
-
+	vec2 vecToOther = circle->position - position;
+	float distance = length(vecToOther);
+	if (distance < circle->radius + radius)
+	{
+		// adding position to convert to world space
+		resolveCollision(circle, position + normalize(vecToOther) * radius);
+		float penetration = (circle->radius + radius - distance) / 2.f;
+		vec2 offSet = normalize(vecToOther) * penetration;
+		position -= offSet;
+		circle->position += offSet;
+	}
 }
 
 void Circle::collideWithPlane(Plane * plane)
 {
-	float distance = glm::dot(position - plane->position, plane->normal);
-	float vPerp = glm::dot(velocity, plane->normal);
+	float distance = dot(position - plane->position, plane->normal);
+	float vPerp = dot(velocity, plane->normal);
 
-	if ((distance > 0 && distance < radius && vPerp < 0) || (distance < 0 && distance> -radius&& vPerp > 0))
+	float penetration = 0;
+
+	if ((distance > 0 && distance < radius && vPerp < 0) || 
+		(distance < 0 && distance >-radius && vPerp > 0))
 	{
+		if (distance > 0 && distance < radius)
+		{
+			penetration = distance - radius;
+		}
+		else
+		{
+			penetration = distance + radius;
+		}
+
 		vec2 force = -mass * (vPerp * plane->normal) * (1.f + bounce);
-		applyForce(force, plane->normal * distance);
+		applyForce(force, plane->parallel * dot(position - plane->position, vec2(0)) ); //* distance
+
+		position -= plane->normal * penetration;
 	}
 }
 
 void Circle::collideWithBox(Box * box)
 {
+	box->collideWithCircle(this);
 }
 
