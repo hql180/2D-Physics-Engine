@@ -49,12 +49,12 @@ void Circle::collideWithCircle(Circle * circle)
 	float distance = length(vecToOther);
 	if (distance < circle->radius + radius)
 	{
+		float penetration = (circle->radius + radius - distance) / 2.f;
+		vec2 contactForce = normalize(vecToOther) * penetration;
+		position -= contactForce;
+		circle->position += contactForce;
 		// adding position to convert to world space
 		resolveCollision(circle, position + normalize(vecToOther) * radius);
-		float penetration = (circle->radius + radius - distance) / 2.f;
-		vec2 offSet = normalize(vecToOther) * penetration;
-		position -= offSet;
-		circle->position += offSet;
 	}
 }
 
@@ -78,9 +78,10 @@ void Circle::collideWithPlane(Plane * plane)
 		}
 
 		vec2 force = -mass * (vPerp * plane->normal) * (1.f + bounce);
-		applyForce(force, plane->parallel * dot(position - plane->position, vec2(0)) ); //* distance
+
 
 		position -= plane->normal * penetration;
+		applyForce(force, plane->parallel * dot(position - plane->position, vec2(0)) ); //* distance		
 	}
 }
 

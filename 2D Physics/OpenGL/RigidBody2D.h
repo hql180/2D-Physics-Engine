@@ -10,6 +10,7 @@ public:
 
 	void applyForce(vec2 force, vec2 pos);
 
+	// takes contact position in worldspace
 	void resolveCollision(RigidBody2D* other, vec2 contact, vec2* direction = NULL);
 
 	vec2 position;

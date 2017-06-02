@@ -132,13 +132,14 @@ void PhysicsApplication::restart()
 {
 	physicsObjects.clear();
 	float bounce = .2f;
-	float boxBounce = .2f;
+	float boxBounce = .0f;
 
-	physicsObjects.push_back(new Circle(vec2(0, 10), vec2(0, 1), 1, 1, bounce));
-	physicsObjects.push_back(new Circle(vec2(2, 10), vec2(1, -1), 1, 1, bounce));
+
 	physicsObjects.push_back(new Plane(vec2(0, -5), vec2(0.5, 1)));
 	physicsObjects.push_back(new Plane(vec2(25, 0), vec2(1, 0)));
 	physicsObjects.push_back(new Plane(vec2(0, 20), vec2(0, 1)));
+	physicsObjects.push_back(new Circle(vec2(0, 10), vec2(0, 1), 1, 1, bounce));
+	physicsObjects.push_back(new Circle(vec2(2, 10), vec2(1, -1), 1, 1, bounce));
 	physicsObjects.push_back(new Circle(vec2(-2, 10), vec2(-1, -1), 1, 1, bounce));
 	physicsObjects.push_back(new Box(vec2(-8, 10), vec2(2, 3), 2, 2, 2, boxBounce));
 	physicsObjects.push_back(new Box(vec2(-6, 10), vec2(4, 7), 2, 2, 2, boxBounce));

@@ -13,11 +13,17 @@ public:
 
 	virtual void draw();
 	virtual void update(float dt);
-
+	
 	virtual void collideWithCircle(Circle* circle);
 	virtual void collideWithPlane(Plane* plane);
 	virtual void collideWithBox(Box* box);
 
+	bool checkCorners(Box* box, vec2& contact, int& numContacts, float &pen, vec2& edgeNormal, vec2& contactForce);
+
+	bool SAT(Box* box);
+
 	float width, height;
+	float w2, h2;
+	vec2 p1, p2, p3, p4;
 };
 
