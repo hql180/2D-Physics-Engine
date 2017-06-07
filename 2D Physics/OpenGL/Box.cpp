@@ -24,18 +24,18 @@ Box::Box(vec2 pos, vec2 vel, float w, float h, float m, float bouncy, float a, f
 	width = w;
 	height = h;
 
-	w2 = width / 2.f;
-	h2 = height / 2.f;
+	halfWidth = width / 2.f;
+	halfHeight = height / 2.f;
 
 	moment = 1.0f / 12.0f * mass * width * height;
 	
 	localX = vec2(0, 1);
 	localY = vec2(-1, 0);
 
-	p1 = position - localX * w2 - localY * h2;
-	p2 = position + localX * w2 - localY * h2;
-	p3 = position + localX * w2 + localY * h2;
-	p4 = position - localX * w2 + localY * h2;
+	p1 = position - localX * halfWidth - localY * halfHeight;
+	p2 = position + localX * halfWidth - localY * halfHeight;
+	p3 = position + localX * halfWidth + localY * halfHeight;
+	p4 = position - localX * halfWidth + localY * halfHeight;
 
 	objectType = BOX;
 }
@@ -47,10 +47,10 @@ Box::~Box()
 
 void Box::draw()
 {
-	p1 = position - localX * w2 - localY * h2;
-	p2 = position + localX * w2 - localY * h2;	
-	p3 = position + localX * w2 + localY * h2;
-	p4 = position - localX * w2 + localY * h2;
+	p1 = position - localX * halfWidth - localY * halfHeight;
+	p2 = position + localX * halfWidth - localY * halfHeight;	
+	p3 = position + localX * halfWidth + localY * halfHeight;
+	p4 = position - localX * halfWidth + localY * halfHeight;
 
 	Gizmos::add2DCircle(p1, 0.2f, 10, vec4(1, 0, 0, 1));
 	Gizmos::add2DCircle(p2, 0.2f, 10, vec4(1, 1, 0, 1));
@@ -72,10 +72,10 @@ void Box::collideWithCircle(Circle * circle)
 	vec2 circlePos = circle->position - position;
 
 	float circleDist = length(circlePos);
-	float boxRadius = length(w2 + h2); // debug
+	float boxRadius = length(halfWidth + halfHeight); // debug
 
 	// excludes circles too far away to collide
-	if (length(circlePos) > circle->radius + length(w2 + h2))
+	if (length(circlePos) > circle->radius + length(halfWidth + halfHeight))
 		return;
 
 	int numContacts = 0;
@@ -86,9 +86,9 @@ void Box::collideWithCircle(Circle * circle)
 
 	float penetration = 0;
 	// checks to see if any of the four corners are inside circle
-	for (float x = -w2; x < width; x += width)
+	for (float x = -halfWidth; x < width; x += width)
 	{
-		for (float y = -h2; y < height; y += height)
+		for (float y = -halfHeight; y < height; y += height)
 		{
 			vec2 p = x*localX + y*localY;
 			vec2 dp = p - circlePos;
@@ -105,38 +105,38 @@ void Box::collideWithCircle(Circle * circle)
 
 		otherContacts = 0;
 
-		if (localPos.y < h2 && localPos.y >-h2)
+		if (localPos.y < halfHeight && localPos.y >-halfHeight)
 		{
-			if (localPos.x > 0 && localPos.x < w2 + circle->radius)
+			if (localPos.x > 0 && localPos.x < halfWidth + circle->radius)
 			{
 				++otherContacts;
-				contact += vec2(w2, localPos.y);
+				contact += vec2(halfWidth, localPos.y);
 				direction = localX;
-				penetration = w2 + circle->radius - localPos.x;
+				penetration = halfWidth + circle->radius - localPos.x;
 			}
-			if (localPos.x < 0 && localPos.x > -(w2 + circle->radius))
+			if (localPos.x < 0 && localPos.x > -(halfWidth + circle->radius))
 			{
 				++otherContacts;
-				contact += vec2(-w2, localPos.y);
+				contact += vec2(-halfWidth, localPos.y);
 				direction = -localX;
-				penetration = localPos.x + (w2 + circle->radius);
+				penetration = localPos.x + (halfWidth + circle->radius);
 			}
 		}
-		if (localPos.x < w2 && localPos.x >-w2)
+		if (localPos.x < halfWidth && localPos.x >-halfWidth)
 		{
-			if (localPos.y > 0 && localPos.y < h2 + circle->radius)
+			if (localPos.y > 0 && localPos.y < halfHeight + circle->radius)
 			{
 				++otherContacts;
-				contact += vec2(localPos.x, h2);
+				contact += vec2(localPos.x, halfHeight);
 				direction = localY;
-				penetration = h2 + circle->radius - localPos.y;
+				penetration = halfHeight + circle->radius - localPos.y;
 			}
-			if (localPos.y < 0 && localPos.y >-(h2 + circle->radius))
+			if (localPos.y < 0 && localPos.y >-(halfHeight + circle->radius))
 			{
 				++otherContacts;
-				contact += vec2(localPos.x, -h2);
+				contact += vec2(localPos.x, -halfHeight);
 				direction = -localY;
-				penetration = localPos.y + (h2 + circle->radius); // localPos.y + (h2 + circle->radius);
+				penetration = localPos.y + (halfHeight + circle->radius); // localPos.y + (h2 + circle->radius);
 			}
 		}
 
@@ -166,9 +166,9 @@ void Box::collideWithPlane(Plane * plane)
 	float comFromPlane = dot(position - plane->position, plane->normal);
 	float penetration = 0;
 
-	for (float x = -w2; x < width; x += width)
+	for (float x = -halfWidth; x < width; x += width)
 	{
-		for (float y = -h2; y < height; y += height)
+		for (float y = -halfHeight; y < height; y += height)
 		{
 			vec2 p = position + x*localX + y*localY;
 			float distFromPlane = dot(p - plane->position, plane->normal);
@@ -216,148 +216,112 @@ void Box::collideWithPlane(Plane * plane)
 
 void Box::collideWithBox(Box * box)
 {
-	// relative pos of other box
-	vec2 boxPos = box->position - position;
-
-	vec2 norm= vec2(0);
+	vec2 n1, n2;
 	vec2 contact;
-	vec2 contactForce;
-	float pen = 0;
-	int numContacts = 0;
-	checkCorners(box, contact, numContacts, pen, norm, contactForce);
-	if (box->checkCorners(this, contact, numContacts, pen, norm, contactForce))
-		norm = -norm;
-
-	if (pen > 0)
+	vec2 cf1 = vec2(0), cf2 = vec2(0);
+	float pen1 = 0, pen2 = 0;
+	int nc1 = 0, nc2 = 0;
+	if (checkCorners(box, contact, nc1, n1, pen1, cf1) || box->checkCorners(this, contact, nc2, n2, pen2, cf2))
 	{
-		if (norm != vec2(0))
-		{
-			contactForce = normalize(norm) * pen / 2.f;
-			position -= contactForce;
-			box->position += contactForce;
-		}
+		vec2 contactForce = (cf1 - cf2) * 0.5f;
 
-		resolveCollision(box, contact / (float)numContacts, &norm);
-		float numDynamic = 0;
-		if (numDynamic > 0)
-		{
-			vec2 contactForce = norm*pen / numDynamic;
-			if (false)
-				position -= contactForce;
-			if (false)
-				box->position += contactForce;
-		}
+		float penetration = (pen1 + pen2);
+
+		vec2 edgeNormal = normalize(n1 - n2);
+
+		position -= contactForce;
+		box->position += contactForce;
+
+		float numContacts = nc1 + nc2;
+		//if (numContacts == 1)
+		//{
+		//	position -= contactForce;
+		//	box->position += contactForce;
+		//}
+		//else if (numContacts > 1)
+		//{
+		//	vec2 dir = normalize(box->position - position);
+		//	position -= dir * penetration;
+		//	box->position += dir * penetration;
+		//}
+
+
+		resolveCollision(box, contact / numContacts, &edgeNormal);
 	}
+
 }
 
-bool Box::checkCorners(Box * box, vec2 & contact, int & numContacts, float & pen, vec2 & edgeNormal, vec2 & contactForce)
+bool Box::checkCorners(Box * box, vec2 & contact, int & numContacts, vec2 & edgeNormal, float& pen, vec2& contactForce)
 {
-	float minX, maxX, minY, maxY;
-	int numLocalContacts = 0;
-
+	
 	float penetration = 0;
 
-	vec2 localContact = vec2(0);
-
-	bool first = true;
-
-	for (float x = -box->w2; x < box->width; x += box->width)
+	// looping through local extents of other box
+	for (float x = -box->halfWidth; x < box->width; x += box->width)
 	{
-		for (float y = -box->h2; y < box->height; y += box->height)
+		for (float y = -box->halfHeight; y < box->height; y += box->height)
 		{
-			// getting position in world space
+			// position in world space
 			vec2 p = box->position + x*box->localX + y*box->localY;
 
 			// projecting into current box's localSpace
 			vec2 p0(dot(p - position, localX), dot(p - position, localY));
 
-			if (first || p0.x < minX) minX = p0.x;
-			if (first || p0.x > maxX) maxX = p0.x;
-			if (first || p0.y < minY) minY = p0.y;
-			if (first || p0.y < maxY) maxY = p0.y;
-
-			if (p0.x >= -w2 && p0.x <= w2 && p0.y >= -h2 && p0.y <= h2)
+			if (p0.y < halfHeight && p0.y > -halfHeight) // checks if other box is within left or right face of box
 			{
-				++numLocalContacts;
-				localContact += p0;
+				if (p0.x > 0 && p0.x < halfWidth) // checks if penetrating right hand side
+				{
+					++numContacts;
+					contact += position + halfWidth * localX + p0.y * localY; // right face
+					edgeNormal = localX;
+					penetration = halfWidth - p0.x;
+					pen = max(pen, penetration);
+				}
+				if (p0.x < 0 && p0.x > -halfWidth) // checks if penetrating left hand side
+				{
+					++numContacts;
+					contact += position - halfWidth * localX + p0.y * localY; // left face
+					edgeNormal = -localX;
+					penetration = halfWidth + p0.x;
+
+
+				}
 			}
-			first = false;
-		}
-	}
-
-	if (maxX < -w2 || minX > w2 || maxY < -h2 || minY > h2)
-		return false;
-	if (numLocalContacts == 0)
-		return false;
-
-	bool res = false;
-
-	contact += position + (localContact.x*localX + localContact.y*localY) / (float)numLocalContacts;
-	++numContacts;
-
-	float pen0 = w2 - minX;
-	if (pen0 > 0 && (pen0 < pen || pen == 0))
-	{
-		edgeNormal = localX;
-		pen = pen0;
-		res = true;
-	}
-	pen0 = maxX + w2;
-	if (pen0 > 0 && (pen0 < pen || pen == 0))
-	{
-		edgeNormal = -localX;
-		pen = pen0;
-		res = true;
-	}
-	pen0 = h2 - minY;
-	if (pen0 > 0 && (pen0 < pen || pen == 0))
-	{
-		edgeNormal = localY;
-		pen = pen0;
-		res = true;
-	}
-	pen0 = maxY + h2;
-	if (pen0 > 0 && (pen0 < pen || pen == 0))
-	{
-		edgeNormal = -localY;
-		pen = pen0;
-		res = true;
-	}
-	return res;
-}
-
-
-bool Box::SAT(Box * box)
-{
-	vec2 vecToOther = box->position - position;
-
-	float distanceToOther = length(vecToOther);
-	
-	// return false if other box too far to collide
-	//if (distanceToOther > length(vec2(h2, w2)) + length(vec2(box->h2, box->w2)))
-	//	return false;
-
-	int counter = 0;
-
-	vec2 currentPlane = localX;
-	
-	while (counter < 2)
-	{
-		float minX, maxX, minY, maxY;
-
-		float minXB, maxXB, minYB, maxYB;
-
-		for (float x = -w2; x < width; x += width)
-		{
-			for (float y = -h2; y < height; y += height)
+			if (p0.x < halfWidth && p0.x > -halfWidth) // checks for penetration / contact on top and bottom face of box
 			{
-
+				if (p0.y > 0 && p0.y < halfHeight) // top face
+				{
+					++numContacts;
+					contact += position + p0.x * localX + halfHeight * localY;
+					float pen0 = halfHeight - p0.y;
+					if (pen0 < penetration || penetration == 0) 
+					{
+						penetration = pen0;
+						edgeNormal = localY;
+					}
+					pen = max(pen, pen0);
+				}
+				if (p0.y < 0 && p0.y > -halfHeight) // bottom face
+				{
+					++numContacts;
+					contact += position + p0.x * localX - halfHeight * localY;
+					float pen0 = halfHeight + p0.y;
+					if (pen0 < penetration || penetration == 0)
+					{
+						penetration = pen0;
+						edgeNormal = -localY;
+					}
+					pen = max(pen, pen0);
+				}
 			}
 		}
-		
-		currentPlane = localY;
-		++counter;
 	}
+
+	pen = penetration;
+
 	
-	return false;
+
+	contactForce = penetration * edgeNormal;
+	
+	return (penetration != 0);	
 }

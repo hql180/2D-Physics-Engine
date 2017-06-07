@@ -7,9 +7,6 @@ void RigidBody2D::update(float dt)
 	angle += rotation * dt;
 	position += velocity * dt;
 
-	// Debug
-	printf("rotation: %f \n", rotation);
-
 	float cs = cosf(angle);
 	float sn = sinf(angle);
 

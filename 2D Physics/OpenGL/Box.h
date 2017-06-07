@@ -18,12 +18,12 @@ public:
 	virtual void collideWithPlane(Plane* plane);
 	virtual void collideWithBox(Box* box);
 
-	bool checkCorners(Box* box, vec2& contact, int& numContacts, float &pen, vec2& edgeNormal, vec2& contactForce);
+	bool checkCorners(Box* box, vec2& contact, int& numContacts, vec2& edgeNormal, float& pen, vec2& contactForce);
 
 	bool SAT(Box* box);
 
 	float width, height;
-	float w2, h2;
+	float halfWidth, halfHeight; // half width and half height
 	vec2 p1, p2, p3, p4;
 };
 
