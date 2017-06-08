@@ -7,6 +7,7 @@
 #include "RigidBody2D.h"
 #include "Circle.h"
 #include "Box.h"
+#include "Spring.h"
 
 using namespace glm;
 
@@ -135,13 +136,24 @@ void PhysicsApplication::restart()
 	float boxBounce = .0f;
 
 
+	physicsObjects.push_back(new Spring());
 	physicsObjects.push_back(new Plane(vec2(0, -5), vec2(0.5, 1)));
 	physicsObjects.push_back(new Plane(vec2(25, 0), vec2(1, 0)));
 	physicsObjects.push_back(new Plane(vec2(0, 20), vec2(0, 1)));
-	//physicsObjects.push_back(new Circle(vec2(0, 10), vec2(0, 1), 1, 1, bounce));
+	physicsObjects.push_back(new Circle(vec2(0, 10), vec2(0, 1), 1, 1, bounce));
+	((Spring*)physicsObjects.front())->body1 = ((RigidBody2D*)physicsObjects.back());
 	//physicsObjects.push_back(new Circle(vec2(2, 10), vec2(1, -1), 1, 1, bounce));
-	//physicsObjects.push_back(new Circle(vec2(-2, 10), vec2(-1, -1), 1, 1, bounce));
+	//((RigidBody2D*)physicsObjects.back())->isFixed = true;
+	//
 	//physicsObjects.push_back(new Box(vec2(-8, 10), vec2(2, 3), 2, 2, 2, boxBounce));
-	physicsObjects.push_back(new Box(vec2(-6, 10), vec2(0), 2, 2, 2, boxBounce));
+	//physicsObjects.push_back(new Circle(vec2(-2, 10), vec2(-1, -1), 1, 1, bounce));
 	physicsObjects.push_back(new Box(vec2(-8, 5), vec2(0), 2, 2, 2, boxBounce));
+	((Spring*)physicsObjects.front())->body2 = ((RigidBody2D*)physicsObjects.back());
+	//physicsObjects.push_back(new Box(vec2(-4, 0), vec2(0), 2, 2, 2, boxBounce));
+	//physicsObjects.push_back(new Box(vec2(-8, 5), vec2(0), 2, 2, 2, boxBounce));
+	//physicsObjects.push_back(new Box(vec2(-4, 0), vec2(0), 2, 2, 2, boxBounce));
+	//((RigidBody2D*)physicsObjects.back())->isFixed = true;
+
+	((Spring*)physicsObjects.front())->restoringForce = 0.1f;
+	
 }

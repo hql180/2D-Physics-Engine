@@ -25,6 +25,8 @@ Circle::Circle(vec2 pos, vec2 vel, float r, float m, float bouncy, float a, floa
 
 	moment = 0.5f * mass * radius * radius;
 
+	isFixed = false;
+
 	objectType = CIRCLE;
 }
 
@@ -51,8 +53,10 @@ void Circle::collideWithCircle(Circle * circle)
 	{
 		float penetration = (circle->radius + radius - distance) / 2.f;
 		vec2 contactForce = normalize(vecToOther) * penetration;
-		position -= contactForce;
-		circle->position += contactForce;
+		if (!isFixed)
+			position -= contactForce;
+		if (!circle->isFixed)
+			circle->position += contactForce;
 		// adding position to convert to world space
 		resolveCollision(circle, position + normalize(vecToOther) * radius);
 	}

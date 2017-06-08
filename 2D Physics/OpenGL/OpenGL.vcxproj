@@ -162,6 +162,7 @@
     <ClInclude Include="PhysicsObject2D.h" />
     <ClInclude Include="Plane.h" />
     <ClInclude Include="RigidBody2D.h" />
+    <ClInclude Include="Spring.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
@@ -178,6 +179,7 @@
     <ClCompile Include="PhysicsObject2D.cpp" />
     <ClCompile Include="Plane.cpp" />
     <ClCompile Include="RigidBody2D.cpp" />
+    <ClCompile Include="Spring.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

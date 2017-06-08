@@ -4,8 +4,6 @@
 
 void RigidBody2D::update(float dt)
 {
-	angle += rotation * dt;
-	position += velocity * dt;
 
 	float cs = cosf(angle);
 	float sn = sinf(angle);
@@ -13,13 +11,29 @@ void RigidBody2D::update(float dt)
 	localX = vec2(cs, sn);
 	localY = vec2(-sn, cs);
 
-	velocity += gravity * dt;
+	if (!isFixed)
+	{
+		angle += rotation * dt;
+		position += velocity * dt;
+
+
+		velocity += gravity * dt;
+	}
+	else
+	{
+		velocity = vec2(0);
+		rotation = 0;
+	}
+
 }
 
 void RigidBody2D::applyForce(vec2 force, vec2 pos)
 {
-	velocity += force / mass;
-	rotation += (force.y * pos.x - force.x * pos.y) / moment;
+	if (!isFixed)
+	{
+		velocity += force / mass;
+		rotation += (force.y * pos.x - force.x * pos.y) / moment;
+	}
 }
 
 void RigidBody2D::resolveCollision(RigidBody2D * other, vec2 contact, vec2 * direction)
@@ -42,7 +56,7 @@ void RigidBody2D::resolveCollision(RigidBody2D * other, vec2 contact, vec2 * dir
 		float mass1 = 1.f / (1.f / mass + (r1*r1) / moment);
 		float mass2 = 1.f / (1.f / other->mass + (r2*r2) / other->moment);
 
-		float totalBounce = (bounce + other->bounce) / 2.f;
+		float totalBounce = (bounce + other->bounce) * 0.5f;
 
 		//vec2 force = (1.f + bounce)*mass1*mass2 / (mass1 + mass2)*(v1 - v2)*unitDisp;
 		vec2 force = (1.f + totalBounce)*mass1*mass2 / (mass1 + mass2)*(v1 - v2)*unitDisp;

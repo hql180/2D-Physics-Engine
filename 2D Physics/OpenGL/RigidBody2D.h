@@ -21,6 +21,8 @@ public:
 	float angle;
 	float moment;
 
+	bool isFixed;
+
 	vec2 localX;
 	vec2 localY;
 
