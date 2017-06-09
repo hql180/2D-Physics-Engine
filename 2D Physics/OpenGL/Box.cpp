@@ -40,12 +40,9 @@ Box::Box(vec2 pos, vec2 vel, float w, float h, float m, float bouncy, float a, f
 	objectType = BOX;
 
 	isFixed = false;
+	isAwake = false;
 }
 
-
-Box::~Box()
-{
-}
 
 void Box::draw()
 {
@@ -54,23 +51,18 @@ void Box::draw()
 	p3 = position + localX * halfWidth + localY * halfHeight;
 	p4 = position - localX * halfWidth + localY * halfHeight;
 
-	//Gizmos::add2DCircle(p1, 0.2f, 10, vec4(1, 0, 0, 1));
-	//Gizmos::add2DCircle(p2, 0.2f, 10, vec4(1, 1, 0, 1));
-	//Gizmos::add2DCircle(p3, 0.2f, 10, vec4(0, 1, 1, 1));
-	//Gizmos::add2DCircle(p4, 0.2f, 10, vec4(0, 1, 0, 1));
+	Gizmos::add2DCircle(p1, 0.2f, 10, vec4(1, 0, 0, 1));
+	Gizmos::add2DCircle(p2, 0.2f, 10, vec4(1, 1, 0, 1));
+	Gizmos::add2DCircle(p3, 0.2f, 10, vec4(0, 1, 1, 1));
+	Gizmos::add2DCircle(p4, 0.2f, 10, vec4(0, 1, 0, 1));
 
-	Gizmos::add2DCircle(position + localX, 0.2f, 10, vec4(1, 0, 0, 1));
-	Gizmos::add2DCircle(position - localX, 0.2f, 10, vec4(0, 0, 1, 1));
-	Gizmos::add2DCircle(position + localY, 0.2f, 10, vec4(0, 1, 0, 1));
-	Gizmos::add2DCircle(position - localY, 0.2f, 10, vec4(1, 1, 0, 1));
+	//Gizmos::add2DCircle(position + localX, 0.2f, 10, vec4(1, 0, 0, 1));
+	//Gizmos::add2DCircle(position - localX, 0.2f, 10, vec4(0, 0, 1, 1));
+	//Gizmos::add2DCircle(position + localY, 0.2f, 10, vec4(0, 1, 0, 1));
+	//Gizmos::add2DCircle(position - localY, 0.2f, 10, vec4(1, 1, 0, 1));
 
 	Gizmos::add2DTri(p1, p2, p3, colour);
 	Gizmos::add2DTri(p3, p4, p1, colour);
-}
-
-void Box::update(float dt)
-{
-	RigidBody2D::update(dt);
 }
 
 void Box::collideWithCircle(Circle * circle)
@@ -228,165 +220,201 @@ void Box::collideWithBox(Box * box)
 	if (length(position - box->position) > length(vec2(halfWidth, halfHeight) + length(vec2(box->halfWidth, box->halfHeight))))
 		return;
 	
-	vec2 n1, n2;
 	vec2 contact;
-	vec2 cf1 = vec2(0), cf2 = vec2(0);
-	float pen1 = 0, pen2 = 0;
+	float pen = 0;
 
 	int numContacts = 0;
-	bool b1 = false, b2 = false;
-	b1 = checkCorners(box, contact, numContacts, n1, pen1, cf1);
-	b2 = box->checkCorners(this, contact, numContacts, n2, pen2, cf2);
+
+	vec2 edgeNormal;
+
+	bool b1 = checkBoxCorners(box, contact, numContacts, pen, edgeNormal);
+	bool b2 = box->checkBoxCorners(this, contact, numContacts, pen, edgeNormal);
+
 	if (b1 || b2)
 	{
-		vec2 contactForce = (cf1 - cf2) * 0.5f;
-
-		float penetration = (pen1 + pen2) * 0.5f;
-
-
-		vec2 edgeNormal = normalize(n1 - n2);
-
-
-
-		//if (penetration == 0)
-		//{
-		//	position -= contactForce;
-		//	box->position += contactForce;
-		//}
-		//else
-		//{
-		//	position -= edgeNormal * penetration;
-		//	box->position += edgeNormal * penetration;
-		//}
-
-		if (!isFixed)
-			position -= contactForce;
-		if (!box->isFixed)
-			box->position += contactForce;
+		if (b2)
+			edgeNormal = -edgeNormal;
 
 		resolveCollision(box, contact / (float)numContacts, &edgeNormal);
 
-
-
+		if (pen > 0)
+		{
+			vec2 contactForce = edgeNormal * pen;
+			if (!isFixed)
+				position -= contactForce;
+			if (!box->isFixed)
+				box->position += contactForce;
+		}
 	}
 }
 
-bool Box::checkCorners(Box * box, vec2 & contact, int & numContacts, vec2 & edgeNormal, float& pen, vec2& contactForce)
+//bool Box::checkCorners(Box * box, vec2 & contact, int & numContacts, vec2 & edgeNormal, float& pen, vec2& contactForce)
+//{
+//	float penetration = 0;
+//
+//	int matches = 0;
+//
+//	vec2 points[4];
+//
+//	// looping through local extents of other box
+//	for (float x = -box->halfWidth; x < box->width; x += box->width)
+//	{
+//		for (float y = -box->halfHeight; y < box->height; y += box->height)
+//		{
+//			// position in world space
+//			vec2 p = box->position + x*box->localX + y*box->localY;
+//
+//			// projecting into current box's localSpace
+//			vec2 p0(dot(p - position, localX), dot(p - position, localY));
+//
+//			float error = 0.1f;
+//
+//			if (p0.y < halfHeight && p0.y > -halfHeight) // checks if other box is within left or right face of box
+//			{
+//				if (p0.x > 0 && p0.x < halfWidth) // checks if penetrating right hand side
+//				{
+//					++numContacts;
+//					contact += position + halfWidth * localX + p0.y * localY; // right face
+//					edgeNormal = localX;
+//					penetration = halfWidth - p0.x;
+//				}
+//				if (p0.x < 0 && p0.x > -halfWidth) // checks if penetrating left hand side
+//				{
+//					++numContacts;
+//					contact += position - halfWidth * localX + p0.y * localY; // left face
+//					edgeNormal = -localX;
+//					penetration = halfWidth + p0.x;
+//				}
+//
+//			}
+//			if (p0.x < halfWidth && p0.x > -halfWidth) // checks for penetration / contact on top and bottom face of box
+//			{
+//				if (p0.y > 0 && p0.y < halfHeight) // top face
+//				{
+//					++numContacts;
+//					contact += position + p0.x * localX + halfHeight * localY;
+//					float pen0 = halfHeight - p0.y;
+//					if (pen0 < penetration || penetration == 0) 
+//					{
+//						penetration = pen0;
+//						edgeNormal = localY;
+//					}
+//				}
+//				if (p0.y < 0 && p0.y > -halfHeight) // bottom face
+//				{
+//					++numContacts;
+//					contact += position + p0.x * localX - halfHeight * localY;
+//					float pen0 = halfHeight + p0.y;
+//					if (pen0 < penetration || penetration == 0)
+//					{
+//						penetration = pen0;
+//						edgeNormal = -localY;
+//					}
+//				}
+//			}			//&& (pen = (p0.y > 0) ? halfHeight - p0.y : halfWidth + p0.y)
+//			//	&& (pen = (p0.x > 0) ? halfWidth - p0.x : halfWidth + p0.x)
+//			if (fabs(halfHeight - fabs(p0.y)) < error && fabs(halfWidth - fabs(p0.x)) < error * 5.f ||
+//				fabs(halfHeight - fabs(p0.y)) < error * 5.f && fabs(halfWidth - fabs(p0.x)) < error)
+//			{
+//				//++matches;
+//
+//				points[matches++] = p;
+//			}
+//		}
+//	}
+//
+//	if (matches > 1)
+//	{
+//		//float minDist = 0;
+//		//float distance = length(box->position - position);
+//		//vec2 local = points[0] - box->position;
+//		//if (distance < minDist)
+//		//{
+//		//	pen = distance - minDist;
+//		//}
+//
+//		vec2 normal = points[0] - points[1];
+//		//edgeNormal = normalize(vec2(box->position - position));
+//		edgeNormal = -normalize(vec2(-normal.y, normal.x));
+//
+//		//if (pen != 0)
+//		//	penetration = -pen;
+//		//Gizmos::add2DLine(position - 100.f * edgeNormal, position + 100.f * edgeNormal, vec4(1));
+//
+//		//Gizmos::add2DCircle(points[0], 0.2, 10, vec4(1));
+//		//Gizmos::add2DCircle(points[1], 0.2, 10, vec4(1));
+//	}
+//
+//	//if(edgeNormal != vec2(0))
+//	//Gizmos::add2DLine(position - 20.f * edgeNormal, position + 20.f * edgeNormal, vec4(1, 0, 0, 1));
+//
+//	pen = penetration;
+//	
+//	contactForce = penetration * edgeNormal;
+//	
+//	return (penetration != 0);	
+//}
+
+bool Box::checkBoxCorners(Box* box, glm::vec2& contact, int& numContacts, float &pen, glm::vec2& edgeNormal)
 {
-	float penetration = 0;
-
-	// looping through local extents of other box
-	for (float x = -box->halfWidth; x <= box->width; x += box->width)
+	float minX, maxX, minY, maxY;
+	int numLocalContacts = 0;
+	glm::vec2 localContact;
+	bool first = true;
+	for (float x = -box->halfWidth; x < box->width; x += box->width)
 	{
-		for (float y = -box->halfHeight; y <= box->height; y += box->height)
+		for (float y = -box->halfHeight; y < box->height; y += box->height)
 		{
-			// position in world space
-			vec2 p = box->position + x*box->localX + y*box->localY;
-
-			// projecting into current box's localSpace
-			vec2 p0(dot(p - position, localX), dot(p - position, localY));
-
-			float offSet = 1.f;
-
-			//if (p0.y * offSet <= halfHeight  && p0.y * offSet>= -halfHeight)
-			//{
-			//	if (p0.x > 0 && p0.x < halfWidth* offSet) // checks if penetrating right hand side
-			//	{
-			//		edgeNormal = localX;
-			//		penetration = halfWidth - p0.x;
-			//	}
-			//	if (p0.x < 0 && p0.x > -halfWidth* offSet) // checks if penetrating left hand side
-			//	{
-			//		edgeNormal = -localX;
-			//		penetration = halfWidth + p0.x;
-			//	}
-			//}
-			//if (p0.x * offSet <= halfWidth && p0.x * offSet>= -halfWidth)
-			//{
-			//	if (p0.y > 0 && p0.y < halfHeight* offSet) // top face
-			//	{
-			//		float pen0 = halfHeight - p0.y;
-			//		if (pen0 < penetration || penetration == 0)
-			//		{
-			//			penetration = pen0;
-			//			edgeNormal = localY;
-			//		}
-			//	}
-			//	if (p0.y < 0 && p0.y >= -halfHeight* offSet) // bottom face
-			//	{
-			//		float pen0 = halfHeight + p0.y;
-			//		if (pen0 < penetration || penetration == 0)
-			//		{
-			//			penetration = pen0;
-			//			edgeNormal = -localY;
-			//		}
-			//	}
-			//}
-
-			float error = 0.0f;
-
-			if (p0.y < halfHeight && p0.y > -halfHeight) // checks if other box is within left or right face of box
+			glm::vec2 p = box->position + x*box->localX + y*box->localY; // position in worldspace
+			glm::vec2 p0(glm::dot(p - position, localX), glm::dot(p - position, localY)); // position in our box's space
+			if (first || p0.x < minX) minX = p0.x;
+			if (first || p0.x > maxX) maxX = p0.x;
+			if (first || p0.y < minY) minY = p0.y;
+			if (first || p0.y > maxY) maxY = p0.y;
+			if (p0.x >= -halfWidth && p0.x <= halfWidth && p0.y >= -halfHeight && p0.y <= halfHeight)
 			{
-				if (p0.x > 0 && p0.x < halfWidth) // checks if penetrating right hand side
-				{
-					++numContacts;
-					contact += position + halfWidth * localX + p0.y * localY; // right face
-					edgeNormal = localX;
-					penetration = halfWidth - p0.x;
-					if (halfHeight - fabs(p0.y) < error && halfWidth - fabs(p0.x) < error)
-						pen = halfWidth - p0.x * offSet;
-				}
-				if (p0.x < 0 && p0.x > -halfWidth) // checks if penetrating left hand side
-				{
-					++numContacts;
-					contact += position - halfWidth * localX + p0.y * localY; // left face
-					edgeNormal = -localX;
-					penetration = halfWidth + p0.x;
-					if (halfHeight - fabs(p0.y) < error && halfWidth - fabs(p0.x) < error)
-						pen = halfWidth + p0.x * offSet;
-				}
+				numLocalContacts++;
+				localContact += p0;
 			}
-			if (p0.x < halfWidth && p0.x > -halfWidth) // checks for penetration / contact on top and bottom face of box
-			{
-				if (p0.y > 0 && p0.y < halfHeight) // top face
-				{
-					++numContacts;
-					contact += position + p0.x * localX + halfHeight * localY;
-					float pen0 = halfHeight - p0.y;
-					if (pen0 < penetration || penetration == 0) 
-					{
-						penetration = pen0;
-						edgeNormal = localY;
-
-					}
-					if (halfHeight - fabs(p0.y) < error && halfWidth - fabs(p0.x) < error)
-						pen = halfHeight - p0.y * offSet;
-
-				}
-				if (p0.y < 0 && p0.y > -halfHeight) // bottom face
-				{
-					++numContacts;
-					contact += position + p0.x * localX - halfHeight * localY;
-					float pen0 = halfHeight + p0.y;
-					if (pen0 < penetration || penetration == 0)
-					{
-						penetration = pen0;
-						edgeNormal = -localY;
-					}
-					if (halfHeight - fabs(p0.y) < error && halfWidth - fabs(p0.x) < error)
-						pen = halfHeight + p0.y * offSet;
-				}
-			}
-
+			first = false;
 		}
 	}
+	if (maxX <-halfWidth || minX >halfWidth || maxY<-halfHeight || minY >halfHeight)
+		return false;
+	if (numLocalContacts == 0)
+		return false;
 
-	contactForce = penetration * edgeNormal;
+	bool res = false;
 
-	if (pen != 0)
+	contact += position + (localContact.x*localX + localContact.y*localY) / (float)numLocalContacts;
+	numContacts++;
+	float pen0 = halfHeight - minX;
+	if (pen0 > 0 && (pen0 < pen || pen == 0))
 	{
-		contactForce = pen * edgeNormal;
+		edgeNormal = localX;
+		pen = pen0;
+		res = true;
 	}
-	
-	return (penetration != 0);	
+	pen0 = maxX + halfHeight;
+	if (pen0 > 0 && (pen0 < pen || pen == 0))
+	{
+		edgeNormal = -localX;
+		pen = pen0;
+		res = true;
+	}
+	pen0 = halfHeight - minY;
+	if (pen0 > 0 && (pen0 < pen || pen == 0))
+	{
+		edgeNormal = localY;
+		pen = pen0;
+		res = true;
+	}
+	pen0 = maxY + halfHeight;
+	if (pen0 > 0 && (pen0 < pen || pen == 0))
+	{
+		edgeNormal = -localY;
+		pen = pen0;
+		res = true;
+	}
+	return res;
 }

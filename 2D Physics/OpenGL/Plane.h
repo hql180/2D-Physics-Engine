@@ -10,13 +10,13 @@ class Plane :
 public:
 	Plane();
 	Plane(vec2 pos, vec2 norm = vec2(0, 1), vec4 col = vec4(0.5f, 0.35f, 0.1f, 1));
-	~Plane();
+	~Plane() {}
 
 	virtual void draw();
 	virtual void update(float dt);
 
 	virtual void collideWithCircle(Circle* circle);
-	virtual void collideWithPlane(Plane* plane);
+	virtual void collideWithPlane(Plane* plane) {}
 	virtual void collideWithBox(Box* box);
 
 	vec2 position;

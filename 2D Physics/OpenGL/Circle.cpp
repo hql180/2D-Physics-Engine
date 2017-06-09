@@ -26,6 +26,7 @@ Circle::Circle(vec2 pos, vec2 vel, float r, float m, float bouncy, float a, floa
 	moment = 0.5f * mass * radius * radius;
 
 	isFixed = false;
+	isAwake = false;
 
 	objectType = CIRCLE;
 }
@@ -38,11 +39,6 @@ void Circle::draw()
 {
 	Gizmos::add2DCircle(position, radius, 20, colour);
 	Gizmos::add2DCircle(position + radius* 0.5f * localX, radius*0.2f, 20, vec4(1));
-}
-
-void Circle::update(float dt)
-{
-	RigidBody2D::update(dt);
 }
 
 void Circle::collideWithCircle(Circle * circle)

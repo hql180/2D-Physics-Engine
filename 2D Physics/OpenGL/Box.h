@@ -9,21 +9,20 @@ public:
 		float w = 2.f, float h = 2.f,
 		float m = 1.f, float bouncy = 0.5f,
 		float a = 0, float rot = 0, vec4 col = vec4(0, 0, 1, 1));
-	~Box();
+	~Box() {}
 
 	virtual void draw();
-	virtual void update(float dt);
-	
+
 	virtual void collideWithCircle(Circle* circle);
 	virtual void collideWithPlane(Plane* plane);
 	virtual void collideWithBox(Box* box);
 
-	bool checkCorners(Box* box, vec2& contact, int& numContacts, vec2& edgeNormal, float& pen, vec2& contactForce);
+	//bool checkCorners(Box* box, vec2& contact, int& numContacts, vec2& edgeNormal, float& pen, vec2& contactForce);
 
-	bool SAT(Box* box);
+	bool checkBoxCorners(Box* box, glm::vec2& contact, int& numContacts, float &pen, glm::vec2& edgeNormal);
 
 	float width, height;
-	float halfWidth, halfHeight; // half width and half height
+	float halfWidth, halfHeight;
 	vec2 p1, p2, p3, p4;
 };
 

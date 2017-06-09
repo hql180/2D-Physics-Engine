@@ -22,6 +22,7 @@ public:
 	float moment;
 
 	bool isFixed;
+	bool isAwake;
 
 	vec2 localX;
 	vec2 localY;

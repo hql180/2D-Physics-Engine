@@ -13,7 +13,6 @@ public:
 	~Circle();
 
 	virtual void draw();
-	virtual void update(float dt);
 
 	virtual void collideWithCircle(Circle* circle);
 	virtual void collideWithPlane(Plane* plane);

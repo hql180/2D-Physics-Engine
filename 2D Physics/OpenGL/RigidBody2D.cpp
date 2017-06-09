@@ -11,18 +11,17 @@ void RigidBody2D::update(float dt)
 	localX = vec2(cs, sn);
 	localY = vec2(-sn, cs);
 
-	if (!isFixed)
+	if(isFixed || !isAwake)
+	{
+		velocity = vec2(0);
+		rotation = 0;
+	}
+	else
 	{
 		angle += rotation * dt;
 		position += velocity * dt;
 
-
 		velocity += gravity * dt;
-	}
-	else
-	{
-		velocity = vec2(0);
-		rotation = 0;
 	}
 
 }
@@ -38,6 +37,16 @@ void RigidBody2D::applyForce(vec2 force, vec2 pos)
 
 void RigidBody2D::resolveCollision(RigidBody2D * other, vec2 contact, vec2 * direction)
 {
+	if (isAwake || other->isAwake)
+	{
+		isAwake = true;
+		other->isAwake = true;
+	}
+	else
+	{
+		return;
+	}
+
 	// finds vector between centres if direction is not provided
 	vec2 unitDisp = direction ? *direction : normalize(other->position - position);
 
@@ -47,8 +56,8 @@ void RigidBody2D::resolveCollision(RigidBody2D * other, vec2 contact, vec2 * dir
 	// calculate total velocity of contact points, both linear and rotational
 	float r1 = dot(contact - position, -unitPerp);
 	float r2 = dot(contact - other->position, unitPerp);
-	float v1 = dot(velocity, unitDisp) + r1 * rotation;
-	float v2 = dot(other->velocity, unitDisp) - r2 * other->rotation;
+	float v1 = dot(velocity, unitDisp) - r1 * rotation;
+	float v2 = dot(other->velocity, unitDisp) + r2 * other->rotation;
 
 	if (v1 > v2) // moving closer
 	{

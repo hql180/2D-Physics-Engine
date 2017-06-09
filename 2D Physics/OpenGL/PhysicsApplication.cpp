@@ -63,26 +63,28 @@ void PhysicsApplication::shutdown()
 
 bool PhysicsApplication::update()
 {
+	Gizmos::clear();
+
 	if (glfwGetKey(window, GLFW_KEY_R))
 	{
 		restart();
 	}
 
-	camera.update(window);
-
 	float dt = 1.0f / 60.0f;
-	
-	int counter = 0;
+
 	for (auto it = physicsObjects.begin(); it != physicsObjects.end(); ++it)
-	{	
+	{
 		PhysicsObject2D* obj = *it;
 		obj->update(dt);
 		for (auto it2 = --physicsObjects.end(); it2 != it; --it2)
 		{
 			obj->checkCollisions(*it2);
-			counter += 1;
-		}		
+		}
 	}
+
+	camera.update(window);
+
+
 	
 	return (glfwWindowShouldClose(window) == false && glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS);
 }
@@ -95,7 +97,7 @@ void PhysicsApplication::draw()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
-	Gizmos::clear();
+
 
 	for (auto& object : physicsObjects)
 	{
@@ -107,21 +109,17 @@ void PhysicsApplication::draw()
 	vec4 red(1, 0, 0, 1);
 	vec4 white(1);
 	vec4 black(0, 0, 0, 1);
-	for (int i = 0; i < 21; ++i) {
-		Gizmos::add2DLine(vec2(-10 + i, 10), vec2(-10 + i, -10), i == 10 ? orange : white);
-		Gizmos::add2DLine(vec2(10, -10 + i), vec2(-10, -10 + i), i == 10 ? orange : white);
-	}
+	//for (int i = 0; i < 21; ++i) {
+	//	Gizmos::add2DLine(vec2(-10 + i, 10), vec2(-10 + i, -10), i == 10 ? orange : white);
+	//	Gizmos::add2DLine(vec2(10, -10 + i), vec2(-10, -10 + i), i == 10 ? orange : white);
+	//}
 
 	// test rendering code
 	//Gizmos::add2DCircle(vec2(0, -4), 1, 32, red);
 	//Gizmos::add2DAABBFilled(vec2(0, 1), vec2(1, 3), red);
-
-
-
-	Gizmos::draw2D(projection * view);
-
-
 	
+	Gizmos::draw2D(projection * view);
+		
 	glfwSwapBuffers(window);
 	glfwPollEvents();
 
@@ -133,7 +131,7 @@ void PhysicsApplication::restart()
 {
 	physicsObjects.clear();
 	float bounce = .2f;
-	float boxBounce = .0f;
+	float boxBounce = .5f;
 
 
 	physicsObjects.push_back(new Spring());
@@ -142,17 +140,24 @@ void PhysicsApplication::restart()
 	physicsObjects.push_back(new Plane(vec2(0, 20), vec2(0, 1)));
 	physicsObjects.push_back(new Circle(vec2(0, 10), vec2(0, 1), 1, 1, bounce));
 	((Spring*)physicsObjects.front())->body1 = ((RigidBody2D*)physicsObjects.back());
-	//physicsObjects.push_back(new Circle(vec2(2, 10), vec2(1, -1), 1, 1, bounce));
-	//((RigidBody2D*)physicsObjects.back())->isFixed = true;
-	//
-	//physicsObjects.push_back(new Box(vec2(-8, 10), vec2(2, 3), 2, 2, 2, boxBounce));
-	//physicsObjects.push_back(new Circle(vec2(-2, 10), vec2(-1, -1), 1, 1, bounce));
+	physicsObjects.push_back(new Circle(vec2(2, 10), vec2(1, -1), 1, 1, bounce));
+	((RigidBody2D*)physicsObjects.back())->isFixed = true;
+	
+
+	physicsObjects.push_back(new Circle(vec2(-2, 10), vec2(-1, -1), 1, 1, bounce));
 	physicsObjects.push_back(new Box(vec2(-8, 5), vec2(0), 2, 2, 2, boxBounce));
 	((Spring*)physicsObjects.front())->body2 = ((RigidBody2D*)physicsObjects.back());
-	//physicsObjects.push_back(new Box(vec2(-4, 0), vec2(0), 2, 2, 2, boxBounce));
-	//physicsObjects.push_back(new Box(vec2(-8, 5), vec2(0), 2, 2, 2, boxBounce));
-	//physicsObjects.push_back(new Box(vec2(-4, 0), vec2(0), 2, 2, 2, boxBounce));
-	//((RigidBody2D*)physicsObjects.back())->isFixed = true;
+	physicsObjects.push_back(new Box(vec2(-4, 0), vec2(0), 2, 2, 2, boxBounce));
+	physicsObjects.push_back(new Box(vec2(-8, 10), vec2(0), 2, 2, 2, boxBounce));
+	physicsObjects.push_back(new Box(vec2(-6, 15), vec2(2, 3), 2, 2, 2, boxBounce));
+	physicsObjects.push_back(new Box(vec2(-12, 15), vec2(2, 3), 2, 2, 2, boxBounce));
+	physicsObjects.push_back(new Box(vec2(-12, 17), vec2(2, 3), 2, 2, 2, boxBounce));
+	((RigidBody2D*)physicsObjects.back())->isAwake = true;
+	physicsObjects.push_back(new Box(vec2(-12, 4), vec2(2, 3), 2, 2, 2, boxBounce));
+	physicsObjects.push_back(new Box(vec2(-12, 6), vec2(2, 3), 2, 2, 2, boxBounce));
+
+
+	((RigidBody2D*)physicsObjects.back())->isFixed = true;
 
 	((Spring*)physicsObjects.front())->restoringForce = 0.1f;
 	
