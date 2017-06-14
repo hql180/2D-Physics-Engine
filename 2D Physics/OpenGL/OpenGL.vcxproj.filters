@@ -61,7 +61,7 @@
       <Filter>Header Files\Physics</Filter>
     </ClInclude>
     <ClInclude Include="Spring.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Physics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

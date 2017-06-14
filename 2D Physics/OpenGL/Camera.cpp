@@ -9,6 +9,11 @@ void Camera::update(GLFWwindow* window)
 	if (glfwGetKey(window, GLFW_KEY_S)) radius = radius + 0.01f;
 }
 
+float Camera::getDistance()
+{
+	return 10 * radius;
+}
+
 mat4 Camera::getView()
 {
 	return glm::lookAt(vec3(0, 0, 10*radius), vec3(0, 0, 0), vec3(0, 1, 0));

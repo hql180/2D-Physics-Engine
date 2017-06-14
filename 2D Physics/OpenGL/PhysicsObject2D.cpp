@@ -4,6 +4,11 @@
 #include "Circle.h"
 #include "Box.h"
 
+bool PhysicsObject2D::isInside(vec2 pt)
+{
+	return false;
+}
+
 void PhysicsObject2D::checkCollisions(PhysicsObject2D * other)
 {
 	switch (other->objectType)

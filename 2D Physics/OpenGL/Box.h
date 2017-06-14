@@ -17,7 +17,7 @@ public:
 	virtual void collideWithPlane(Plane* plane);
 	virtual void collideWithBox(Box* box);
 
-	//bool checkCorners(Box* box, vec2& contact, int& numContacts, vec2& edgeNormal, float& pen, vec2& contactForce);
+	virtual bool isInside(vec2 pt);
 
 	bool checkBoxCorners(Box* box, glm::vec2& contact, int& numContacts, float &pen, glm::vec2& edgeNormal);
 

@@ -90,3 +90,8 @@ void Circle::collideWithBox(Box * box)
 	box->collideWithCircle(this);
 }
 
+bool Circle::isInside(vec2 pt)
+{
+	return (length(pt - position) < radius);
+}
+

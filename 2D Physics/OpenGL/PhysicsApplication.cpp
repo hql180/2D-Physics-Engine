@@ -70,6 +70,42 @@ bool PhysicsApplication::update()
 		restart();
 	}
 
+	bool isDown = glfwGetMouseButton(window, 0);
+
+	double x0, y0;
+	glfwGetCursorPos(window, &x0, &y0);
+	mat4 view = camera.getView();
+	mat4 projection = camera.getProjection();
+
+	vec3 windowCoord = vec3(x0, y0, 0);
+	vec4 viewPort = vec4(0, 0, 1280, 720);
+	vec3 worldCoord = unProject(windowCoord, view, projection, viewPort);
+
+	mousePoint = vec2(worldCoord[0] * camera.getDistance(), worldCoord[1] * (-camera.getDistance()));
+
+	if (isDown != mouseDown)
+	{
+		if (isDown)
+		{
+			contactPoint = mousePoint;
+		}
+		else
+		{
+			for (auto it = physicsObjects.begin(); it != physicsObjects.end(); ++it)
+			{
+				PhysicsObject2D* obj = *it;
+				if (obj->isInside(mousePoint))
+				{
+					RigidBody2D* rb = (RigidBody2D*)obj;
+					rb->applyForce(2.f*(mousePoint - contactPoint), contactPoint - rb->position);
+				}
+			}
+		}
+		mouseDown = isDown;
+	}
+
+
+
 	float dt = 1.0f / 60.0f;
 
 	for (auto it = physicsObjects.begin(); it != physicsObjects.end(); ++it)
@@ -83,6 +119,8 @@ bool PhysicsApplication::update()
 	}
 
 	camera.update(window);
+
+
 
 
 	
@@ -117,6 +155,9 @@ void PhysicsApplication::draw()
 	// test rendering code
 	//Gizmos::add2DCircle(vec2(0, -4), 1, 32, red);
 	//Gizmos::add2DAABBFilled(vec2(0, 1), vec2(1, 3), red);
+
+	if (mouseDown)
+		Gizmos::add2DLine(contactPoint, mousePoint, white);
 	
 	Gizmos::draw2D(projection * view);
 		
@@ -126,10 +167,14 @@ void PhysicsApplication::draw()
 	day++;
 }
 
-// will cause memory leaks
 void PhysicsApplication::restart()
 {
-	physicsObjects.clear();
+	while (physicsObjects.size() > 0)
+	{
+		delete physicsObjects.front();
+		physicsObjects.remove(physicsObjects.front());
+	}
+
 	float bounce = .2f;
 	float boxBounce = .5f;
 
@@ -161,4 +206,15 @@ void PhysicsApplication::restart()
 
 	((Spring*)physicsObjects.front())->restoringForce = 0.1f;
 	
+}
+
+void PhysicsApplication::poolTable()
+{
+	while (physicsObjects.size() > 0)
+	{
+		delete physicsObjects.front();
+		physicsObjects.remove(physicsObjects.front());
+	}
+
+	PhysicsObject2D::gravity = vec2(0);
 }

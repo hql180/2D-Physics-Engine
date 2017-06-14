@@ -248,6 +248,13 @@ void Box::collideWithBox(Box * box)
 	}
 }
 
+bool Box::isInside(vec2 pt)
+{
+	pt -= position;
+	vec2 boxPt(dot(pt, localX), dot(pt, localY));
+	return (fabs(boxPt.x) < halfWidth && fabs(boxPt.y) < halfHeight);
+}
+
 //bool Box::checkCorners(Box * box, vec2 & contact, int & numContacts, vec2 & edgeNormal, float& pen, vec2& contactForce)
 //{
 //	float penetration = 0;

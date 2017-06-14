@@ -16,13 +16,16 @@ class PhysicsObject2D;
 class PhysicsApplication : public Application
 {
 public:
+	static PhysicsApplication* app;
+	PhysicsApplication() { PhysicsApplication* app = this; }
 
 	virtual bool startup();
 	virtual void shutdown();
 	virtual bool update();
 	virtual void draw();
 
-	void restart(); // will cause memory leaks
+	void restart();
+	void poolTable();
 
 	int day = 0;
 
@@ -30,5 +33,11 @@ public:
 
 	GLuint shaderID;
 
+	
+
 	std::list<PhysicsObject2D*> physicsObjects;
+
+	vec2 contactPoint;
+	vec2 mousePoint;
+	bool mouseDown;
 };

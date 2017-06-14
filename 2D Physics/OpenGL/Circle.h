@@ -17,6 +17,8 @@ public:
 	virtual void collideWithCircle(Circle* circle);
 	virtual void collideWithPlane(Plane* plane);
 	virtual void collideWithBox(Box* box);
+
+	virtual bool isInside(vec2 pt);
 		
 	float radius;
 };

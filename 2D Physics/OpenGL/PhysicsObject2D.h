@@ -25,6 +25,8 @@ public:
 	virtual void collideWithCircle(Circle* circle) = 0;
 	virtual void collideWithPlane(Plane* plane) = 0;
 	virtual void collideWithBox(Box* box) = 0;
+	
+	virtual bool isInside(vec2 pt);
 
 	void checkCollisions(PhysicsObject2D* other);
 
