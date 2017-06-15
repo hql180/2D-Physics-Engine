@@ -217,4 +217,6 @@ void PhysicsApplication::poolTable()
 	}
 
 	PhysicsObject2D::gravity = vec2(0);
+
+
 }
