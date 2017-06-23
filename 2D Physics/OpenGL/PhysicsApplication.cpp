@@ -46,7 +46,7 @@ bool PhysicsApplication::startup()
 
 	restart();
 
-	PhysicsObject2D::gravity = vec2(0, -2);
+	PhysicsObject2D::gravity = vec2(0, -1);
 
 	return true;
 }
@@ -204,7 +204,9 @@ void PhysicsApplication::restart()
 
 	((RigidBody2D*)physicsObjects.back())->isFixed = true;
 
-	((Spring*)physicsObjects.front())->restoringForce = 0.1f;
+	((Spring*)physicsObjects.front())->restoringForce = .5f;
+
+	camera.radius = 10;
 	
 }
 
@@ -216,7 +218,18 @@ void PhysicsApplication::poolTable()
 		physicsObjects.remove(physicsObjects.front());
 	}
 
-	PhysicsObject2D::gravity = vec2(0);
+	PhysicsObject2D::gravity = vec2(0, -2);
 
+	Spring* spring = new Spring();
 
+	Box* box1 = new Box();
+	Box* box2 = new Box();
+
+	spring->body1 = box1;
+	spring->body1 = box2;
+
+	box1->isAwake = false;
+
+	box2->position = vec2(0, 4);
+	box2->isFixed = true;
 }

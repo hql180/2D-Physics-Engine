@@ -6,11 +6,6 @@
 
 #include "Gizmos.h"
 
-Box::Box()
-{
-	objectType = BOX;
-}
-
 Box::Box(vec2 pos, vec2 vel, float w, float h, float m, float bouncy, float a, float rot, vec4 col)
 {
 	position = pos;
