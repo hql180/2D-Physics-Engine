@@ -44,7 +44,9 @@ bool PhysicsApplication::startup()
 
 	Gizmos::create(65335U, 65535U, 65535U, 65535U);
 
-	restart();
+	//restart();
+
+	poolTable();
 
 	PhysicsObject2D::gravity = vec2(0, -1);
 
@@ -106,7 +108,7 @@ bool PhysicsApplication::update()
 
 
 
-	float dt = 1.0f / 60.0f;
+	float dt = 1.0f / 120.0f;
 
 	for (auto it = physicsObjects.begin(); it != physicsObjects.end(); ++it)
 	{
@@ -223,13 +225,30 @@ void PhysicsApplication::poolTable()
 	Spring* spring = new Spring();
 
 	Box* box1 = new Box();
+	
+
 	Box* box2 = new Box();
 
-	spring->body1 = box1;
-	spring->body1 = box2;
+	box1->position = vec2(0);
+	box2->position = vec2(0, 4);
+	physicsObjects.push_back(new Circle(vec2(2, 4)));
+	box1->colour = vec4(1, 0, 0, 1);
+	box2->colour = vec4(1, 0, 1, 1);
 
-	box1->isAwake = false;
+
+
+	//box1->isAwake = false;
+	box2->isAwake = false;
 
 	box2->position = vec2(0, 4);
 	box2->isFixed = true;
+
+	physicsObjects.push_back(box1);
+	physicsObjects.push_back(box2);
+	physicsObjects.push_back(spring);
+
+	spring->body1 = box1;
+	spring->body2 = box2;
+
+	camera.radius = 10;
 }
