@@ -11,6 +11,17 @@ void RigidBody2D::update(float dt)
 	localX = vec2(cs, sn);
 	localY = vec2(-sn, cs);
 
+	if (!isAwake)
+	{
+		colour = vec4(.9, .9, 0, 1);
+	}
+
+	if (isFixed)
+	{
+		mass = std::numeric_limits<float>::max();
+		colour = vec4(0.1, 0.1, 0.7, 1);
+	}
+
 	if(isFixed || !isAwake)
 	{
 		velocity = vec2(0);
@@ -22,6 +33,8 @@ void RigidBody2D::update(float dt)
 		position += velocity * dt;
 
 		velocity += gravity * dt;
+
+		colour = vec4(0, 1, 0, 1);
 	}
 
 }

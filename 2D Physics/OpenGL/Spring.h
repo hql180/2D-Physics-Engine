@@ -6,7 +6,7 @@ class Spring :
 	public PhysicsObject2D
 {
 public:
-	Spring(RigidBody2D* rb1 = NULL, RigidBody2D* rb2 = NULL, vec4 col = vec4(1), vec2& const c1 = vec2(0), vec2& const c2 = vec2(0), float rLength = 5.f, float rForce = 1.f, float mLength = 0, float damp = 1.f);
+	Spring(RigidBody2D* rb1 = NULL, RigidBody2D* rb2 = NULL, vec4 col = vec4(1), vec2& const c1 = vec2(0), vec2& const c2 = vec2(0), float rLength = 5.f, float rForce = 0.2f, float mLength = 0, float damp = 1.f);
 	~Spring() {}
 
 	virtual void draw();

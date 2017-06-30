@@ -41,6 +41,9 @@ Box::Box(vec2 pos, vec2 vel, float w, float h, float m, float bouncy, float a, f
 
 void Box::draw()
 {
+	halfWidth = width / 2.f;
+	halfHeight = height / 2.f;
+
 	p1 = position - localX * halfWidth - localY * halfHeight;
 	p2 = position + localX * halfWidth - localY * halfHeight;	
 	p3 = position + localX * halfWidth + localY * halfHeight;
@@ -50,11 +53,6 @@ void Box::draw()
 	Gizmos::add2DCircle(p2, 0.2f, 10, vec4(1, 1, 0, 1));
 	Gizmos::add2DCircle(p3, 0.2f, 10, vec4(0, 1, 1, 1));
 	Gizmos::add2DCircle(p4, 0.2f, 10, vec4(0, 1, 0, 1));
-
-	//Gizmos::add2DCircle(position + localX, 0.2f, 10, vec4(1, 0, 0, 1));
-	//Gizmos::add2DCircle(position - localX, 0.2f, 10, vec4(0, 0, 1, 1));
-	//Gizmos::add2DCircle(position + localY, 0.2f, 10, vec4(0, 1, 0, 1));
-	//Gizmos::add2DCircle(position - localY, 0.2f, 10, vec4(1, 1, 0, 1));
 
 	Gizmos::add2DTri(p1, p2, p3, colour);
 	Gizmos::add2DTri(p3, p4, p1, colour);
@@ -86,7 +84,7 @@ void Box::collideWithCircle(Circle * circle)
 		{
 			vec2 p = x*localX + y*localY;
 			vec2 dp = p - circlePos;
-			if (length(dp) < circle->radius) //dp.x*dp.x + dp.y*dp.y
+			if (length(dp) < circle->radius)
 			{
 				++numContacts;
 				contact += vec2(x, y);
@@ -130,7 +128,7 @@ void Box::collideWithCircle(Circle * circle)
 				++otherContacts;
 				contact += vec2(localPos.x, -halfHeight);
 				direction = -localY;
-				penetration = localPos.y + (halfHeight + circle->radius); // localPos.y + (h2 + circle->radius);
+				penetration = localPos.y + (halfHeight + circle->radius);
 			}
 		}
 
@@ -142,7 +140,9 @@ void Box::collideWithCircle(Circle * circle)
 		contact = position + (1.f / numContacts) * (localX*contact.x + localY*contact.y);
 
 		// calculating contactforces
-		penetration *= 0.5f;
+		if (!isFixed && !circle->isFixed)
+			penetration *= 0.5f;
+
 		if (!isFixed)
 			position -= normalize(otherContacts ? direction : circlePos) * penetration;
 		if (!circle->isFixed)
@@ -390,14 +390,14 @@ bool Box::checkBoxCorners(Box* box, glm::vec2& contact, int& numContacts, float 
 
 	contact += position + (localContact.x*localX + localContact.y*localY) / (float)numLocalContacts;
 	numContacts++;
-	float pen0 = halfHeight - minX;
+	float pen0 = halfWidth - minX;
 	if (pen0 > 0 && (pen0 < pen || pen == 0))
 	{
 		edgeNormal = localX;
 		pen = pen0;
 		res = true;
 	}
-	pen0 = maxX + halfHeight;
+	pen0 = maxX + halfWidth;
 	if (pen0 > 0 && (pen0 < pen || pen == 0))
 	{
 		edgeNormal = -localX;

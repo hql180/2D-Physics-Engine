@@ -46,9 +46,11 @@ bool PhysicsApplication::startup()
 
 	//restart();
 
+	PhysicsObject2D::gravity = vec2(0, -1);
+
 	poolTable();
 
-	PhysicsObject2D::gravity = vec2(0, -1);
+
 
 	return true;
 }
@@ -69,7 +71,8 @@ bool PhysicsApplication::update()
 
 	if (glfwGetKey(window, GLFW_KEY_R))
 	{
-		restart();
+		//restart();
+		poolTable();
 	}
 
 	bool isDown = glfwGetMouseButton(window, 0);
@@ -99,6 +102,7 @@ bool PhysicsApplication::update()
 				if (obj->isInside(mousePoint))
 				{
 					RigidBody2D* rb = (RigidBody2D*)obj;
+					rb->isAwake = true;
 					rb->applyForce(2.f*(mousePoint - contactPoint), contactPoint - rb->position);
 				}
 			}
@@ -177,8 +181,8 @@ void PhysicsApplication::restart()
 		physicsObjects.remove(physicsObjects.front());
 	}
 
-	float bounce = .2f;
-	float boxBounce = .5f;
+	float bounce = 1.f;
+	float boxBounce = 1.f;
 
 
 	physicsObjects.push_back(new Spring());
@@ -220,28 +224,25 @@ void PhysicsApplication::poolTable()
 		physicsObjects.remove(physicsObjects.front());
 	}
 
-	PhysicsObject2D::gravity = vec2(0, -2);
+	PhysicsObject2D::gravity = vec2(0, 0);
+
+	physicsObjects.push_back(new Box(vec2(-37, 0), vec2(0), 3, 40, 100, 1, 0, 0));
+	((RigidBody2D*)physicsObjects.back())->isFixed = true;
+	physicsObjects.push_back(new Box(vec2(37, 0), vec2(0), 3, 40, 100, 1, 3.14159f, 0));
+	((RigidBody2D*)physicsObjects.back())->isFixed = true;
+	physicsObjects.push_back(new Box(vec2(0, 20), vec2(0), 80, 3, 100, 1, 0, 0));
+	((RigidBody2D*)physicsObjects.back())->isFixed = true;
+	physicsObjects.push_back(new Box(vec2(0, -20), vec2(0), 80, 3, 100, 1, 0, 0));
+	((RigidBody2D*)physicsObjects.back())->isFixed = true;
+
+
 
 	Spring* spring = new Spring();
 
 	Box* box1 = new Box();
-	
-
 	Box* box2 = new Box();
-
 	box1->position = vec2(0);
 	box2->position = vec2(0, 4);
-	physicsObjects.push_back(new Circle(vec2(2, 4)));
-	box1->colour = vec4(1, 0, 0, 1);
-	box2->colour = vec4(1, 0, 1, 1);
-
-
-
-	//box1->isAwake = false;
-	box2->isAwake = false;
-
-	box2->position = vec2(0, 4);
-	box2->isFixed = true;
 
 	physicsObjects.push_back(box1);
 	physicsObjects.push_back(box2);
@@ -249,6 +250,71 @@ void PhysicsApplication::poolTable()
 
 	spring->body1 = box1;
 	spring->body2 = box2;
+	spring->restLength = 10;
+	spring->restoringForce = 0.1;
 
-	camera.radius = 10;
+
+	Box* box3 = new Box(vec2(0, -10));
+	Circle* circle1 = new Circle(vec2(-15, -5));
+	Circle* circle2 = new Circle(vec2(15, -5));
+	Spring* spring1 = new Spring(circle1, box3);
+	Spring* spring2 = new Spring(circle2, box3);
+	physicsObjects.push_back(box3);
+	physicsObjects.push_back(circle1);
+	physicsObjects.push_back(circle2);
+	physicsObjects.push_back(spring1);
+	physicsObjects.push_back(spring2);
+
+	spring1->restoringForce = 0.05f;
+	spring2->restoringForce = 0.05f;
+
+
+
+
+	circle1 = new Circle(vec2(-30, 15));
+	circle2 = new Circle(vec2(-25, 15));
+
+	physicsObjects.push_back(new Circle(vec2(-19, 15)));
+	((RigidBody2D*)physicsObjects.back())->bounce = 1;
+
+	spring1 = new Spring(circle1, circle2);
+	spring1->restLength = 5;
+	spring1->restoringForce = 0.5f;
+	circle1->velocity = vec2(0, -40);
+	circle1->isAwake = true;
+	circle2->isFixed = true;
+
+	physicsObjects.push_back(circle1);
+	physicsObjects.push_back(circle2);
+	physicsObjects.push_back(spring1);
+
+	physicsObjects.push_back(new Circle(vec2(-3, 0)));
+	((RigidBody2D*)physicsObjects.back())->bounce = 1;
+	physicsObjects.push_back(new Box(vec2(3, 0)));
+	((RigidBody2D*)physicsObjects.back())->bounce = 1;
+	
+	box2->position = vec2(0, 4);
+	box2->isFixed = true;
+
+
+	box3 = new Box(vec2(25, 15));
+	circle1 = new Circle(vec2(30, 15));
+	circle1->isFixed = true;
+	circle2 = new Circle(vec2(20, 15));
+	spring1 = new Spring(circle1, box3);
+	spring2 = new Spring(box3, circle2);
+	physicsObjects.push_back(box3);
+	physicsObjects.push_back(circle1);
+	physicsObjects.push_back(circle2);
+	physicsObjects.push_back(spring1);
+	physicsObjects.push_back(spring2);
+
+	spring1->restoringForce = 0.05f;
+	spring2->restoringForce = 0.05f;
+
+
+
+
+
+	camera.radius = 3;
 }
