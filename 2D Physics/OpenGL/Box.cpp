@@ -385,9 +385,7 @@ bool Box::checkBoxCorners(Box* box, glm::vec2& contact, int& numContacts, float 
 		return false;
 	if (numLocalContacts == 0)
 		return false;
-
 	bool res = false;
-
 	contact += position + (localContact.x*localX + localContact.y*localY) / (float)numLocalContacts;
 	numContacts++;
 	float pen0 = halfWidth - minX;
