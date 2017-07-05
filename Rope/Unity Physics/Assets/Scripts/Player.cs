@@ -11,6 +11,8 @@ public class Player : MonoBehaviour {
     public float pushPower = 2.0f;
 	public float mouseSensitivity = 70f;
 
+    public GameObject particleSpawner;
+
 	// Use this for initialization
 	void Start ()
 	{
@@ -22,6 +24,23 @@ public class Player : MonoBehaviour {
 	// Update is called once per frame
 	void Update ()
 	{
+        if(Input.GetMouseButtonDown(0))
+        {
+            RaycastHit hit;
+            var ray = Camera.main.ScreenPointToRay(new Vector3(Screen.width / 2, Screen.height / 2, 0));
+
+            if(Physics.Raycast(ray, out hit))
+            {
+                if(particleSpawner)
+                {
+                    var rot = Quaternion.FromToRotation(Vector3.up, hit.normal);
+
+                    var spawner = Instantiate(particleSpawner, hit.point, rot);
+                    spawner.transform.parent = hit.transform;
+                }
+            }
+        }
+
 		if (Input.GetKeyDown(KeyCode.Escape))
 		{
 			if (Cursor.visible == true)
