@@ -32,11 +32,19 @@ public class Ragdoll: MonoBehaviour
 		GetComponent<Animator>().enabled = !set;
 	}
 
-	//void OnTriggerEnter(Collider col)
-	//{
-	//	if (col.tag == "RagdollTrigger")
-	//	{
-	//		SetRagdoll(true);
-	//	}
-	//}
+	void OnTriggerEnter(Collider col)
+	{
+		if (col.tag == "RagdollTrigger")
+		{
+			SetRagdoll(true);
+		}
+	}
+
+	void OnCollisionEnter(Collision col)
+	{
+		if (col.transform.tag == "RagdollTrigger")
+		{
+			SetRagdoll(true);
+		}
+	}
 }

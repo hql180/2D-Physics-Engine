@@ -20,7 +20,7 @@ public class ClothTrigger : MonoBehaviour {
 
 	void OnTriggerEnter(Collider col)
 	{
-		if(ClothSpawner)
+		if (ClothSpawner)
 		{
 			foreach (Rigidbody rb in ClothSpawner.GetComponentsInChildren<Rigidbody>())
 			{

@@ -33,11 +33,16 @@ public class Player : MonoBehaviour {
             {
                 if(particleSpawner)
                 {
-                    var rot = Quaternion.FromToRotation(Vector3.up, hit.normal);
+					var rot = Quaternion.FromToRotation(Vector3.up, hit.normal);
+					var spawner = Instantiate(particleSpawner, hit.point, rot);
 
-                    var spawner = Instantiate(particleSpawner, hit.point, rot);
-                    spawner.transform.parent = hit.transform;
+					spawner.transform.parent = hit.transform;
                 }
+
+				if(hit.transform.tag == "Ragdoll")
+				{
+					hit.transform.GetComponentInParent<Ragdoll>().SetRagdoll(true);
+				}
             }
         }
 
