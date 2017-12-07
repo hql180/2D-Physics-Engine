@@ -102,7 +102,7 @@
       <Filter>Source Files\Physics</Filter>
     </ClCompile>
     <ClCompile Include="Spring.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Physics</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

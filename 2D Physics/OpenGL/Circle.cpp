@@ -81,7 +81,7 @@ void Circle::collideWithPlane(Plane * plane)
 
 
 		position -= plane->normal * penetration;
-		applyForce(force, plane->parallel * dot(position - plane->position, vec2(0)) ); //* distance		
+		applyForce(force, plane->parallel * dot(position - plane->position, vec2(0)) );
 	}
 }
 

@@ -25,7 +25,7 @@ public:
 	virtual void draw();
 
 	void restart();
-	void poolTable();
+	void playPen();
 
 	int day = 0;
 
@@ -40,4 +40,9 @@ public:
 	vec2 contactPoint;
 	vec2 mousePoint;
 	bool mouseDown;
+
+	bool downKey = false;
+	bool upKey = false;
+	bool rightKey = false;
+	bool leftKey = false;
 };

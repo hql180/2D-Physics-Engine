@@ -1,7 +1,5 @@
 #include "RigidBody2D.h"
 
-#include <stdio.h> // Debug
-
 void RigidBody2D::update(float dt)
 {
 

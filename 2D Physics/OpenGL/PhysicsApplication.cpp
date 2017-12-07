@@ -48,7 +48,7 @@ bool PhysicsApplication::startup()
 
 	PhysicsObject2D::gravity = vec2(0, -1);
 
-	poolTable();
+	playPen();
 
 
 
@@ -71,8 +71,32 @@ bool PhysicsApplication::update()
 
 	if (glfwGetKey(window, GLFW_KEY_R))
 	{
-		//restart();
-		poolTable();
+		playPen();
+	}
+
+	if (glfwGetKey(window, GLFW_KEY_LEFT))
+	{
+		PhysicsObject2D::gravity.x--;
+	}
+
+	if (glfwGetKey(window, GLFW_KEY_RIGHT))
+	{
+		PhysicsObject2D::gravity.x++;
+	}
+
+	if (glfwGetKey(window, GLFW_KEY_DOWN))
+	{
+		PhysicsObject2D::gravity.y--;
+	}
+
+	if (glfwGetKey(window, GLFW_KEY_UP))
+	{
+		PhysicsObject2D::gravity.y++;
+	}
+
+	if (glfwGetKey(window, GLFW_KEY_G))
+	{
+		PhysicsObject2D::gravity = vec2(0);
 	}
 
 	bool isDown = glfwGetMouseButton(window, 0);
@@ -110,8 +134,6 @@ bool PhysicsApplication::update()
 		mouseDown = isDown;
 	}
 
-
-
 	float dt = 1.0f / 120.0f;
 
 	for (auto it = physicsObjects.begin(); it != physicsObjects.end(); ++it)
@@ -126,10 +148,6 @@ bool PhysicsApplication::update()
 
 	camera.update(window);
 
-
-
-
-	
 	return (glfwWindowShouldClose(window) == false && glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS);
 }
 
@@ -139,10 +157,7 @@ void PhysicsApplication::draw()
 	mat4 projection = camera.getProjection();
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-
-
-
+	
 	for (auto& object : physicsObjects)
 	{
 		object->draw();
@@ -216,7 +231,7 @@ void PhysicsApplication::restart()
 	
 }
 
-void PhysicsApplication::poolTable()
+void PhysicsApplication::playPen()
 {
 	while (physicsObjects.size() > 0)
 	{
@@ -224,7 +239,7 @@ void PhysicsApplication::poolTable()
 		physicsObjects.remove(physicsObjects.front());
 	}
 
-	PhysicsObject2D::gravity = vec2(0, 0);
+	PhysicsObject2D::gravity = vec2(0);
 
 	physicsObjects.push_back(new Box(vec2(-37, 0), vec2(0), 3, 40, 100, 1, 0, 0));
 	((RigidBody2D*)physicsObjects.back())->isFixed = true;
@@ -312,7 +327,7 @@ void PhysicsApplication::poolTable()
 	spring1->restoringForce = 0.05f;
 	spring2->restoringForce = 0.05f;
 
-
+	
 
 
 
